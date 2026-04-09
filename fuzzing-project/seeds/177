@@ -1,0 +1,6 @@
+- method: GET
+  path: /avatars/favicon
+  parameters:
+    ? - url
+      - Query
+    : !String https://example.com

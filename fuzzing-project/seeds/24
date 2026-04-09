@@ -1,0 +1,107 @@
+- method: PATCH
+  path: /account/prefs
+- method: GET
+  path: /account/sessions/{sessionId}
+  parameters:
+    ? - sessionId
+      - Path
+    : !String '[SESSION_ID]'
+- method: GET
+  path: /users/{userId}
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: GET
+  path: /users/{userId}/logs
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: GET
+  path: /users/{userId}/prefs
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: GET
+  path: /users/{userId}/sessions
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: PATCH
+  path: /users/{userId}/prefs
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: PATCH
+  path: /users/{userId}/status
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: PATCH
+  path: /users/{userId}/verification
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: DELETE
+  path: /users/{userId}
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: DELETE
+  path: /users/{userId}/sessions
+  parameters:
+    ? - userId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: userId
+- method: DELETE
+  path: /users/{userId}/sessions/{sessionId}
+  parameters:
+    ? - sessionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 1
+      parameter_access: !Request
+        Path: sessionId
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: DELETE
+  path: /account/sessions/{sessionId}
+  parameters:
+    ? - sessionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 1
+      parameter_access: !Request
+        Path: sessionId

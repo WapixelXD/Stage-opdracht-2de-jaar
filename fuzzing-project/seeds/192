@@ -1,0 +1,859 @@
+- method: POST
+  path: /projects
+  body: !ApplicationJson
+    description: !String 🎵
+    legalAddress: !String 🎵
+    legalCity: !String 🎵
+    legalCountry: !String 🎵
+    legalName: !String 🎵
+    legalState: !String 🎵
+    legalTaxId: !String 🎵
+    logo: !String 🎵
+    name: !String 🎵
+    teamId: !String 🎵
+    url: !String 🎵
+- method: GET
+  path: /account/sessions/oauth2/{provider}
+  parameters:
+    ? - failure
+      - Query
+    : !String https://example.com
+    ? - provider
+      - Path
+    : !String amazon
+    ? - scopes
+      - Query
+    : - !String 🎵
+      - !String 🎵
+      - !String 🎵
+    ? - success
+      - Query
+    : !String https://example.com
+- method: POST
+  path: /projects/{projectId}/platforms
+  body: !ApplicationJson
+    hostname: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name platforms
+        - !Name hostname
+    key: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name platforms
+        - !Name key
+    name: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name platforms
+        - !Name name
+    store: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name platforms
+        - !Name store
+    type: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name platforms
+        - !Name type
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: POST
+  path: /projects/{projectId}/domains
+  body: !ApplicationJson
+    domain: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name domains
+        - !Name domain
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: POST
+  path: /projects/{projectId}/keys
+  body: !ApplicationJson
+    name: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name keys
+        - !Name name
+    scopes: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name keys
+        - !Name scopes
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: POST
+  path: /projects/{projectId}/tasks
+  body: !ApplicationJson
+    httpHeaders: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name httpHeaders
+    httpMethod: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name httpMethod
+    httpPass: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name httpPass
+    httpUrl: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name httpUrl
+    httpUser: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name httpUser
+    name: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name name
+    schedule: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name schedule
+    security: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name security
+    status: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name tasks
+        - !Name status
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: POST
+  path: /projects/{projectId}/webhooks
+  body: !ApplicationJson
+    events: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name webhooks
+        - !Name events
+    httpPass: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name webhooks
+        - !Name httpPass
+    httpUser: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name webhooks
+        - !Name httpUser
+    name: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name webhooks
+        - !Name name
+    security: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name webhooks
+        - !Name security
+    url: !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Body:
+        - !Name webhooks
+        - !Name url
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: POST
+  path: /functions/{functionId}/tags
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: POST
+  path: /functions/{functionId}/executions
+  body: !ApplicationJson
+    data: !String 🎵
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+- method: GET
+  path: /functions/{functionId}/tags
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderType
+      - Query
+    : !String ASC
+    ? - search
+      - Query
+    : !String '[SEARCH]'
+- method: GET
+  path: /functions/{functionId}
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+- method: GET
+  path: /functions/{functionId}/executions
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderType
+      - Query
+    : !String ASC
+    ? - search
+      - Query
+    : !String '[SEARCH]'
+- method: GET
+  path: /functions/{functionId}/executions/{executionId}
+  parameters:
+    ? - executionId
+      - Path
+    : !String '[EXECUTION_ID]'
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+- method: GET
+  path: /functions/{functionId}/tags/{tagId}
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+    ? - tagId
+      - Path
+    : !String '[TAG_ID]'
+- method: GET
+  path: /functions/{functionId}/usage
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+    ? - range
+      - Query
+    : !String 24h
+- method: GET
+  path: /projects/{projectId}/usage
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - range
+      - Query
+    : !String 24h
+- method: GET
+  path: /projects/{projectId}
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/domains
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/domains/{domainId}
+  parameters:
+    ? - domainId
+      - Path
+    : !String '[DOMAIN_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/keys
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/keys/{keyId}
+  parameters:
+    ? - keyId
+      - Path
+    : !String '[KEY_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/platforms
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/platforms/{platformId}
+  parameters:
+    ? - platformId
+      - Path
+    : !String '[PLATFORM_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/tasks
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/tasks/{taskId}
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - taskId
+      - Path
+    : !String '[TASK_ID]'
+- method: GET
+  path: /projects/{projectId}/webhooks
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: GET
+  path: /projects/{projectId}/webhooks/{webhookId}
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - webhookId
+      - Path
+    : !String '[WEBHOOK_ID]'
+- method: PUT
+  path: /projects/{projectId}/keys/{keyId}
+  body: !ApplicationJson
+    name: !ReferenceToEarlierRequest
+      request: 20
+      parameter_access: !Request
+        Body:
+        - !Name name
+    scopes: !ReferenceToEarlierRequest
+      request: 20
+      parameter_access: !Request
+        Body:
+        - !Name scopes
+  parameters:
+    ? - keyId
+      - Path
+    : !String '[KEY_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: PUT
+  path: /projects/{projectId}/platforms/{platformId}
+  body: !ApplicationJson
+    hostname: !ReferenceToEarlierRequest
+      request: 22
+      parameter_access: !Request
+        Body:
+        - !Name hostname
+    key: !ReferenceToEarlierRequest
+      request: 22
+      parameter_access: !Request
+        Body:
+        - !Name key
+    name: !ReferenceToEarlierRequest
+      request: 22
+      parameter_access: !Request
+        Body:
+        - !Name name
+    store: !ReferenceToEarlierRequest
+      request: 22
+      parameter_access: !Request
+        Body:
+        - !Name store
+  parameters:
+    ? - platformId
+      - Path
+    : !String '[PLATFORM_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: PUT
+  path: /projects/{projectId}/tasks/{taskId}
+  body: !ApplicationJson
+    httpHeaders: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name httpHeaders
+    httpMethod: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name httpMethod
+    httpPass: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name httpPass
+    httpUrl: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name httpUrl
+    httpUser: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name httpUser
+    name: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name name
+    schedule: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name schedule
+    security: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name security
+    status: !ReferenceToEarlierRequest
+      request: 24
+      parameter_access: !Request
+        Body:
+        - !Name status
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - taskId
+      - Path
+    : !String '[TASK_ID]'
+- method: PUT
+  path: /projects/{projectId}/webhooks/{webhookId}
+  body: !ApplicationJson
+    events: !ReferenceToEarlierRequest
+      request: 26
+      parameter_access: !Request
+        Body:
+        - !Name events
+    httpPass: !ReferenceToEarlierRequest
+      request: 26
+      parameter_access: !Request
+        Body:
+        - !Name httpPass
+    httpUser: !ReferenceToEarlierRequest
+      request: 26
+      parameter_access: !Request
+        Body:
+        - !Name httpUser
+    name: !ReferenceToEarlierRequest
+      request: 26
+      parameter_access: !Request
+        Body:
+        - !Name name
+    security: !ReferenceToEarlierRequest
+      request: 26
+      parameter_access: !Request
+        Body:
+        - !Name security
+    url: !ReferenceToEarlierRequest
+      request: 26
+      parameter_access: !Request
+        Body:
+        - !Name url
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - webhookId
+      - Path
+    : !String '[WEBHOOK_ID]'
+- method: PATCH
+  path: /projects/{projectId}
+  body: !ApplicationJson
+    description: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name description
+    legalAddress: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name legalAddress
+    legalCity: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name legalCity
+    legalCountry: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name legalCountry
+    legalName: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name legalName
+    legalState: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name legalState
+    legalTaxId: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name legalTaxId
+    logo: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name logo
+    name: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name name
+    url: !ReferenceToEarlierRequest
+      request: 16
+      parameter_access: !Request
+        Body:
+        - !Name url
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: PATCH
+  path: /projects/{projectId}/auth/limit
+  body: !ApplicationJson
+    limit: !Number 0
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: PATCH
+  path: /projects/{projectId}/auth/{method}
+  body: !ApplicationJson
+    status: !Bool true
+  parameters:
+    ? - method
+      - Path
+    : !String email-password
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: PATCH
+  path: /projects/{projectId}/domains/{domainId}/verification
+  parameters:
+    ? - domainId
+      - Path
+    : !String '[DOMAIN_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: PATCH
+  path: /projects/{projectId}/oauth2
+  body: !ApplicationJson
+    appId: !String 🎵
+    provider: !ReferenceToEarlierRequest
+      request: 1
+      parameter_access: !Request
+        Path: provider
+    secret: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: DELETE
+  path: /projects/{projectId}
+  body: !ApplicationJson
+    password: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: DELETE
+  path: /projects/{projectId}/domains/{domainId}
+  parameters:
+    ? - domainId
+      - Path
+    : !String '[DOMAIN_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: DELETE
+  path: /projects/{projectId}/keys/{keyId}
+  parameters:
+    ? - keyId
+      - Path
+    : !String '[KEY_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: DELETE
+  path: /projects/{projectId}/platforms/{platformId}
+  parameters:
+    ? - platformId
+      - Path
+    : !String '[PLATFORM_ID]'
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+- method: DELETE
+  path: /projects/{projectId}/tasks/{taskId}
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - taskId
+      - Path
+    : !String '[TASK_ID]'
+- method: DELETE
+  path: /projects/{projectId}/webhooks/{webhookId}
+  parameters:
+    ? - projectId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 2
+      parameter_access: !Request
+        Path: projectId
+    ? - webhookId
+      - Path
+    : !String '[WEBHOOK_ID]'
+- method: PUT
+  path: /functions/{functionId}
+  body: !ApplicationJson
+    events: !ReferenceToEarlierRequest
+      request: 10
+      parameter_access: !Request
+        Body:
+        - !Name events
+    execute:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    name: !ReferenceToEarlierRequest
+      request: 10
+      parameter_access: !Request
+        Body:
+        - !Name name
+    schedule: !ReferenceToEarlierRequest
+      request: 10
+      parameter_access: !Request
+        Body:
+        - !Name schedule
+    timeout: !ReferenceToEarlierRequest
+      request: 10
+      parameter_access: !Request
+        Body:
+        - !Name timeout
+    vars: !ReferenceToEarlierRequest
+      request: 10
+      parameter_access: !Request
+        Body:
+        - !Name vars
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+- method: PATCH
+  path: /functions/{functionId}/tag
+  body: !ApplicationJson
+    tag: !ReferenceToEarlierRequest
+      request: 9
+      parameter_access: !Request
+        Body:
+        - !Name tags
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+- method: DELETE
+  path: /functions/{functionId}
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+- method: DELETE
+  path: /functions/{functionId}/tags/{tagId}
+  parameters:
+    ? - functionId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 7
+      parameter_access: !Request
+        Path: functionId
+    ? - tagId
+      - Path
+    : !String '[TAG_ID]'

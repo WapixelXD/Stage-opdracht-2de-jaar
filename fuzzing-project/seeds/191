@@ -1,0 +1,491 @@
+- method: POST
+  path: /projects
+  body: !ApplicationJson
+    description: !String 🎵
+    legalAddress: !String 🎵
+    legalCity: !String 🎵
+    legalCountry: !String 🎵
+    legalName: !String 🎵
+    legalState: !String 🎵
+    legalTaxId: !String 🎵
+    logo: !String 🎵
+    name: !String 🎵
+    teamId: !String 🎵
+    url: !String 🎵
+- method: GET
+  path: /account/sessions/oauth2/{provider}
+  parameters:
+    ? - failure
+      - Query
+    : !String https://example.com
+    ? - provider
+      - Path
+    : !String amazon
+    ? - scopes
+      - Query
+    : - !String 🎵
+      - !String 🎵
+      - !String 🎵
+    ? - success
+      - Query
+    : !String https://example.com
+- method: POST
+  path: /projects/{projectId}/platforms
+  body: !ApplicationJson
+    hostname: !String 🎵
+    key: !String 🎵
+    name: !String 🎵
+    store: !String 🎵
+    type: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: POST
+  path: /projects/{projectId}/domains
+  body: !ApplicationJson
+    domain: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: POST
+  path: /projects/{projectId}/keys
+  body: !ApplicationJson
+    name: !String 🎵
+    scopes:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: POST
+  path: /projects/{projectId}/tasks
+  body: !ApplicationJson
+    httpHeaders:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    httpMethod: !String 🎵
+    httpPass: !String 🎵
+    httpUrl: !String 🎵
+    httpUser: !String 🎵
+    name: !String 🎵
+    schedule: !String 🎵
+    security: !Bool true
+    status: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: POST
+  path: /projects/{projectId}/webhooks
+  body: !ApplicationJson
+    events:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    httpPass: !String 🎵
+    httpUser: !String 🎵
+    name: !String 🎵
+    security: !Bool true
+    url: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: POST
+  path: /functions/{functionId}/tags
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: POST
+  path: /functions/{functionId}/executions
+  body: !ApplicationJson
+    data: !String 🎵
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: GET
+  path: /functions/{functionId}/tags
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderType
+      - Query
+    : !String ASC
+    ? - search
+      - Query
+    : !String '[SEARCH]'
+- method: GET
+  path: /functions/{functionId}
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: GET
+  path: /functions/{functionId}/executions
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderType
+      - Query
+    : !String ASC
+    ? - search
+      - Query
+    : !String '[SEARCH]'
+- method: GET
+  path: /functions/{functionId}/executions/{executionId}
+  parameters:
+    ? - executionId
+      - Path
+    : !String '[EXECUTION_ID]'
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: GET
+  path: /functions/{functionId}/tags/{tagId}
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+    ? - tagId
+      - Path
+    : !String '[TAG_ID]'
+- method: GET
+  path: /functions/{functionId}/usage
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+    ? - range
+      - Query
+    : !String 24h
+- method: GET
+  path: /projects/{projectId}/usage
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - range
+      - Query
+    : !String 24h
+- method: GET
+  path: /projects/{projectId}
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/domains
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/domains/{domainId}
+  parameters:
+    ? - domainId
+      - Path
+    : !String '[DOMAIN_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/keys
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/keys/{keyId}
+  parameters:
+    ? - keyId
+      - Path
+    : !String '[KEY_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/platforms
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/platforms/{platformId}
+  parameters:
+    ? - platformId
+      - Path
+    : !String '[PLATFORM_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/tasks
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/tasks/{taskId}
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - taskId
+      - Path
+    : !String '[TASK_ID]'
+- method: GET
+  path: /projects/{projectId}/webhooks
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: GET
+  path: /projects/{projectId}/webhooks/{webhookId}
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - webhookId
+      - Path
+    : !String '[WEBHOOK_ID]'
+- method: PUT
+  path: /projects/{projectId}/keys/{keyId}
+  body: !ApplicationJson
+    name: !String 🎵
+    scopes:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+  parameters:
+    ? - keyId
+      - Path
+    : !String '[KEY_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: PUT
+  path: /projects/{projectId}/platforms/{platformId}
+  body: !ApplicationJson
+    hostname: !String 🎵
+    key: !String 🎵
+    name: !String 🎵
+    store: !String 🎵
+  parameters:
+    ? - platformId
+      - Path
+    : !String '[PLATFORM_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: PUT
+  path: /projects/{projectId}/tasks/{taskId}
+  body: !ApplicationJson
+    httpHeaders:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    httpMethod: !String 🎵
+    httpPass: !String 🎵
+    httpUrl: !String 🎵
+    httpUser: !String 🎵
+    name: !String 🎵
+    schedule: !String 🎵
+    security: !Bool true
+    status: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - taskId
+      - Path
+    : !String '[TASK_ID]'
+- method: PUT
+  path: /projects/{projectId}/webhooks/{webhookId}
+  body: !ApplicationJson
+    events:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    httpPass: !String 🎵
+    httpUser: !String 🎵
+    name: !String 🎵
+    security: !Bool true
+    url: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - webhookId
+      - Path
+    : !String '[WEBHOOK_ID]'
+- method: PATCH
+  path: /projects/{projectId}
+  body: !ApplicationJson
+    description: !String 🎵
+    legalAddress: !String 🎵
+    legalCity: !String 🎵
+    legalCountry: !String 🎵
+    legalName: !String 🎵
+    legalState: !String 🎵
+    legalTaxId: !String 🎵
+    logo: !String 🎵
+    name: !String 🎵
+    url: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: PATCH
+  path: /projects/{projectId}/auth/limit
+  body: !ApplicationJson
+    limit: !Number 0
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: PATCH
+  path: /projects/{projectId}/auth/{method}
+  body: !ApplicationJson
+    status: !Bool true
+  parameters:
+    ? - method
+      - Path
+    : !String email-password
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: PATCH
+  path: /projects/{projectId}/domains/{domainId}/verification
+  parameters:
+    ? - domainId
+      - Path
+    : !String '[DOMAIN_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: PATCH
+  path: /projects/{projectId}/oauth2
+  body: !ApplicationJson
+    appId: !String 🎵
+    provider: !String 🎵
+    secret: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: DELETE
+  path: /projects/{projectId}
+  body: !ApplicationJson
+    password: !String 🎵
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: DELETE
+  path: /projects/{projectId}/domains/{domainId}
+  parameters:
+    ? - domainId
+      - Path
+    : !String '[DOMAIN_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: DELETE
+  path: /projects/{projectId}/keys/{keyId}
+  parameters:
+    ? - keyId
+      - Path
+    : !String '[KEY_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: DELETE
+  path: /projects/{projectId}/platforms/{platformId}
+  parameters:
+    ? - platformId
+      - Path
+    : !String '[PLATFORM_ID]'
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+- method: DELETE
+  path: /projects/{projectId}/tasks/{taskId}
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - taskId
+      - Path
+    : !String '[TASK_ID]'
+- method: DELETE
+  path: /projects/{projectId}/webhooks/{webhookId}
+  parameters:
+    ? - projectId
+      - Path
+    : !String '[PROJECT_ID]'
+    ? - webhookId
+      - Path
+    : !String '[WEBHOOK_ID]'
+- method: PUT
+  path: /functions/{functionId}
+  body: !ApplicationJson
+    events:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    execute:
+    - !String 🎵
+    - !String 🎵
+    - !String 🎵
+    name: !String 🎵
+    schedule: !String 🎵
+    timeout: !Number 0
+    vars: {}
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: PATCH
+  path: /functions/{functionId}/tag
+  body: !ApplicationJson
+    tag: !String 🎵
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: DELETE
+  path: /functions/{functionId}
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+- method: DELETE
+  path: /functions/{functionId}/tags/{tagId}
+  parameters:
+    ? - functionId
+      - Path
+    : !String '[FUNCTION_ID]'
+    ? - tagId
+      - Path
+    : !String '[TAG_ID]'

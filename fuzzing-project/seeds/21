@@ -1,0 +1,77 @@
+- method: PATCH
+  path: /account/prefs
+- method: GET
+  path: /account/sessions/{sessionId}
+  parameters:
+    ? - sessionId
+      - Path
+    : !String '[SESSION_ID]'
+- method: GET
+  path: /users/{userId}
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: GET
+  path: /users/{userId}/logs
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: GET
+  path: /users/{userId}/prefs
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: GET
+  path: /users/{userId}/sessions
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: PATCH
+  path: /users/{userId}/prefs
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: PATCH
+  path: /users/{userId}/status
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: PATCH
+  path: /users/{userId}/verification
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: DELETE
+  path: /users/{userId}
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: DELETE
+  path: /users/{userId}/sessions
+  parameters:
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: DELETE
+  path: /users/{userId}/sessions/{sessionId}
+  parameters:
+    ? - sessionId
+      - Path
+    : !String '[SESSION_ID]'
+    ? - userId
+      - Path
+    : !String '[USER_ID]'
+- method: DELETE
+  path: /account/sessions/{sessionId}
+  parameters:
+    ? - sessionId
+      - Path
+    : !String '[SESSION_ID]'

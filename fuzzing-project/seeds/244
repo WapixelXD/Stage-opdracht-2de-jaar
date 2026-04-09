@@ -1,0 +1,12 @@
+- method: GET
+  path: /avatars/image
+  parameters:
+    ? - height
+      - Query
+    : !Number 0
+    ? - url
+      - Query
+    : !String https://example.com
+    ? - width
+      - Query
+    : !Number 0

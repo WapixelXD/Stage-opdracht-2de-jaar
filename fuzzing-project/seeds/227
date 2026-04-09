@@ -1,0 +1,51 @@
+- method: GET
+  path: /avatars/browsers/{code}
+  parameters:
+    ? - code
+      - Path
+    : !String aa
+    ? - height
+      - Query
+    : !Number 0
+    ? - quality
+      - Query
+    : !Number 0
+    ? - width
+      - Query
+    : !Number 0
+- method: GET
+  path: /avatars/credit-cards/{code}
+  parameters:
+    ? - code
+      - Path
+    : !String amex
+    ? - height
+      - Query
+    : !Number 0
+    ? - quality
+      - Query
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Query: quality
+    ? - width
+      - Query
+    : !Number 0
+- method: GET
+  path: /avatars/flags/{code}
+  parameters:
+    ? - code
+      - Path
+    : !String af
+    ? - height
+      - Query
+    : !Number 0
+    ? - quality
+      - Query
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Query: quality
+    ? - width
+      - Query
+    : !Number 0

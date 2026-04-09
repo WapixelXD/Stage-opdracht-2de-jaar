@@ -1,0 +1,15 @@
+- method: GET
+  path: /database/collections
+  parameters:
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderType
+      - Query
+    : !String ASC
+    ? - search
+      - Query
+    : !String '[SEARCH]'

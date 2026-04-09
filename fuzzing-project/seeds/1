@@ -1,0 +1,84 @@
+- method: GET
+  path: /storage/files/{fileId}/download
+  parameters:
+    ? - fileId
+      - Path
+    : !String '[FILE_ID]'
+- method: GET
+  path: /storage/files/{fileId}
+  parameters:
+    ? - fileId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Path: fileId
+- method: GET
+  path: /storage/files/{fileId}/preview
+  parameters:
+    ? - background
+      - Query
+    : !String 🎵
+    ? - borderColor
+      - Query
+    : !String 🎵
+    ? - borderRadius
+      - Query
+    : !Number 0
+    ? - borderWidth
+      - Query
+    : !Number 0
+    ? - fileId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Path: fileId
+    ? - gravity
+      - Query
+    : !String center
+    ? - height
+      - Query
+    : !Number 0
+    ? - opacity
+      - Query
+    : !Number 0
+    ? - output
+      - Query
+    : !String jpg
+    ? - quality
+      - Query
+    : !Number 0
+    ? - rotation
+      - Query
+    : !Number 0
+    ? - width
+      - Query
+    : !Number 0
+- method: GET
+  path: /storage/files/{fileId}/view
+  parameters:
+    ? - fileId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Path: fileId
+- method: PUT
+  path: /storage/files/{fileId}
+  parameters:
+    ? - fileId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Path: fileId
+- method: DELETE
+  path: /storage/files/{fileId}
+  parameters:
+    ? - fileId
+      - Path
+    : !ReferenceToEarlierRequest
+      request: 0
+      parameter_access: !Request
+        Path: fileId

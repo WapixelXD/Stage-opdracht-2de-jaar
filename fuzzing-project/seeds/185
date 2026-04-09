@@ -1,0 +1,80 @@
+- method: POST
+  path: /database/collections/{collectionId}/documents
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+- method: GET
+  path: /database/collections/{collectionId}/documents
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+    ? - filters
+      - Query
+    : - !String 🎵
+      - !String 🎵
+      - !String 🎵
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderCast
+      - Query
+    : !String int
+    ? - orderField
+      - Query
+    : !String '[ORDER_FIELD]'
+    ? - orderType
+      - Query
+    : !String DESC
+    ? - search
+      - Query
+    : !String '[SEARCH]'
+- method: GET
+  path: /database/collections/{collectionId}
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+- method: GET
+  path: /database/collections/{collectionId}/documents/{documentId}
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+    ? - documentId
+      - Path
+    : !String '[DOCUMENT_ID]'
+- method: PUT
+  path: /database/collections/{collectionId}
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+- method: PATCH
+  path: /database/collections/{collectionId}/documents/{documentId}
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+    ? - documentId
+      - Path
+    : !String '[DOCUMENT_ID]'
+- method: DELETE
+  path: /database/collections/{collectionId}
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+- method: DELETE
+  path: /database/collections/{collectionId}/documents/{documentId}
+  parameters:
+    ? - collectionId
+      - Path
+    : !String '[COLLECTION_ID]'
+    ? - documentId
+      - Path
+    : !String '[DOCUMENT_ID]'

@@ -1,0 +1,15 @@
+- method: GET
+  path: /avatars/qr
+  parameters:
+    ? - download
+      - Query
+    : !Bool false
+    ? - margin
+      - Query
+    : !Number 0
+    ? - size
+      - Query
+    : !Number 0
+    ? - text
+      - Query
+    : !String '[TEXT]'

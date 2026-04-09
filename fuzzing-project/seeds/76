@@ -1,0 +1,69 @@
+- method: POST
+  path: /teams/{teamId}/memberships
+  parameters:
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: GET
+  path: /teams/{teamId}
+  parameters:
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: GET
+  path: /teams/{teamId}/memberships
+  parameters:
+    ? - limit
+      - Query
+    : !Number 0
+    ? - offset
+      - Query
+    : !Number 0
+    ? - orderType
+      - Query
+    : !String ASC
+    ? - search
+      - Query
+    : !String '[SEARCH]'
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: PUT
+  path: /teams/{teamId}
+  parameters:
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: PATCH
+  path: /teams/{teamId}/memberships/{membershipId}
+  parameters:
+    ? - membershipId
+      - Path
+    : !String '[MEMBERSHIP_ID]'
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: PATCH
+  path: /teams/{teamId}/memberships/{membershipId}/status
+  parameters:
+    ? - membershipId
+      - Path
+    : !String '[MEMBERSHIP_ID]'
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: DELETE
+  path: /teams/{teamId}/memberships/{membershipId}
+  parameters:
+    ? - membershipId
+      - Path
+    : !String '[MEMBERSHIP_ID]'
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'
+- method: DELETE
+  path: /teams/{teamId}
+  parameters:
+    ? - teamId
+      - Path
+    : !String '[TEAM_ID]'

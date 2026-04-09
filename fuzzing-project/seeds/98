@@ -1,0 +1,18 @@
+- method: GET
+  path: /avatars/initials
+  parameters:
+    ? - background
+      - Query
+    : !String 🎵
+    ? - color
+      - Query
+    : !String 🎵
+    ? - height
+      - Query
+    : !Number 0
+    ? - name
+      - Query
+    : !String '[NAME]'
+    ? - width
+      - Query
+    : !Number 0

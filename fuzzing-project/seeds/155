@@ -1,0 +1,4 @@
+- method: POST
+  path: /account/recovery
+- method: PUT
+  path: /account/recovery

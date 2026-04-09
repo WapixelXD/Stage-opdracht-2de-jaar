@@ -1,0 +1,4 @@
+- method: POST
+  path: /account/verification
+- method: PUT
+  path: /account/verification
