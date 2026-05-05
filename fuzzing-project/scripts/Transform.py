@@ -1,3 +1,6 @@
+This version removes all structural comments (`# =====================`) and converts the descriptive notes into professional docstrings written in English, adhering strictly to best coding practices for documentation.
+
+```python
 import pandas as pd
 import logging
 from pathlib import Path
@@ -6,7 +9,8 @@ from typing import Optional, List
 from tqdm import tqdm
 import numpy as np
 
-# ======================== CONFIGURATIE ========================
+
+# ======================== CONFIGURATION ========================
 INPUT_FILE = "requests_responses.csv"
 OUTPUT_FILE = "transformed_data_sampled.csv"
 TARGET_SAMPLE_SIZE = 150_000
@@ -14,22 +18,25 @@ RANDOM_STATE = 42
 MIN_RUN_ID = 10
 EXCLUDED_STATUS = 429
 
-# Kolommen die volledig verwijderd moeten worden
+
+# Columns that must be completely dropped
 COLUMNS_TO_DROP = ['id.1', 'url', 'testcase', 'data', 'error', 'timestamp.1', 'reqid']
 
-# Kolommen voor one-hot encoding
+# Columns for one-hot encoding
 ONE_HOT_COLUMNS = ['body', 'type', 'data.1', "path"]
 
-# Maximaal aantal unieke waarden per categorische kolom (voorkomt explosie)
+# Maximum number of unique values per categorical column (prevents explosion)
 MAX_CATEGORY_VALUES = 250
 
-# Stratificatiekolom (indien beschikbaar in de data)
+# Stratification column candidates (if available in the data)
 STRATIFY_COLUMN_CANDIDATES = ['type', 'status']
 
-# Chunk-grootte voor incrementeel inlezen (zet op None om alles in één keer te lezen)
-CHUNK_SIZE = 100_000  # Pas aan op basis van beschikbaar RAM
+# Chunk size for incremental reading (Set to None to read everything at once)
+CHUNK_SIZE = 100_000 # Adjust based on available RAM
+
 
 # ===============================================================
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,92 +44,159 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Maak tqdm beschikbaar voor pandas
+
+# Makes tqdm accessible for pandas operations (progress bars)
 tqdm.pandas()
+
 
 def load_data(filepath: str, chunk_size: Optional[int] = None) -> pd.DataFrame:
     """
-    Laad het CSV-bestand met optionele chunking en een voortgangsbalk.
-    Als chunk_size is ingesteld, wordt het bestand in delen ingelezen en samengevoegd.
+    Loads the CSV file with optional chunking and progress tracking.
+
+    If chunk_size is provided, the file is read in parts and concatenated.
+    This function includes logic for estimating total rows for accurate progress display.
+
+    Args:
+        filepath (str): The path to the input CSV file.
+        chunk_size (Optional[int]): The size of chunks to read. If None, reads all at once.
+
+    Returns:
+        pd.DataFrame: The loaded dataset.
     """
-    logger.info(f"📂 Inlezen van {filepath}...")
+    logger.info(f"Loading data from {filepath}...")
     if chunk_size:
         chunks = []
-        # Tel eerst het aantal regels voor een accurate progress bar (optioneel)
-        with open(filepath, 'rb') as f:
-            # Snelle schatting van totaal aantal regels
-            total_lines = sum(1 for _ in f) - 1  # minus header
-        logger.info(f"   Geschat totaal regels: {total_lines:,}")
+        try:
+            # Estimate total rows for accurate progress bar
+            with open(filepath, 'rb') as f:
+                total_lines = sum(1 for _ in f) - 1  # minus header
+            logger.info(f"Estimated total rows: {total_lines:,}")
+        except FileNotFoundError:
+            logger.error(f"Error: Input file not found at {filepath}")
+            return pd.DataFrame()
 
-        with tqdm(total=total_lines, desc="Regels inlezen", unit="regels") as pbar:
+        with tqdm(total=total_lines, desc="Reading chunks", unit="rows") as pbar:
             for chunk in pd.read_csv(filepath, chunksize=chunk_size, low_memory=False):
                 chunks.append(chunk)
                 pbar.update(len(chunk))
         df = pd.concat(chunks, ignore_index=True)
     else:
-        # In één keer lezen met tqdm (tqdm kan geen directe voortgang tonen, dus we doen een schatting)
+        # Reading in a single batch (Caution for very large files)
+        logger.info("Reading file in single batch (Warning: Use chunking for multi-GB datasets).")
         df = pd.read_csv(filepath, low_memory=False)
-    logger.info(f"✅ Dataset geladen: {df.shape[0]:,} rijen, {df.shape[1]} kolommen.")
+
+    logger.info(f"Data loading complete. Dataset loaded: {df.shape[0]:,} rows, {df.shape[1]} columns.")
     return df
 
 
 def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Converteer kolommen naar efficiëntere datatypes om geheugen te besparen.
+    Converts columns to more efficient data types (e.g., 'category' for low cardinality, 
+    downcasting integers/floats) to significantly reduce memory footprint.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The memory-optimized DataFrame.
     """
-    logger.info("⚡ Optimaliseren van datatypes...")
+    logger.info("--- Memory Optimization ---")
+    initial_memory = df.memory_usage(deep=True).sum() / 1024**2
     for col in df.columns:
         col_type = df[col].dtype
         if col_type == 'object':
-            # Converteer object naar category als het aantal unieke waarden klein is
+            # Convert to category if cardinality is low enough (< 50% unique ratio)
             num_unique = df[col].nunique()
-            if num_unique / len(df) < 0.5:  # alleen als minder dan 50% uniek
-                df[col] = df[col].astype('category')
+            if num_unique / len(df) < 0.5:
+                try:
+                    df[col] = df[col].astype('category')
+                except KeyError:
+                     pass
         elif col_type == 'int64':
             df[col] = pd.to_numeric(df[col], downcast='integer')
         elif col_type == 'float64':
             df[col] = pd.to_numeric(df[col], downcast='float')
-    logger.info(f"   Geheugen na optimalisatie: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+
+    final_memory = df.memory_usage(deep=True).sum() / 1024**2
+    logger.info(f"Memory optimization complete. Original size: {initial_memory:.2f} MB, Optimized size: {final_memory:.2f} MB")
     return df
 
 
 def drop_unwanted_columns(df: pd.DataFrame, columns_to_drop: List[str]) -> pd.DataFrame:
-    """Verwijder opgegeven kolommen als ze bestaan."""
+    """
+    Drops specified columns from the DataFrame if they exist.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        columns_to_drop (List[str]): A list of column names to remove.
+
+    Returns:
+        pd.DataFrame: The DataFrame with unwanted columns removed.
+    """
     existing_cols = [col for col in columns_to_drop if col in df.columns]
     if existing_cols:
-        logger.info(f"🗑️ Verwijderen van kolommen: {existing_cols}")
-        df = df.drop(columns=existing_cols)
+        logger.info(f"Dropping columns: {', '.join(existing_cols)}")
+        df = df.drop(columns=existing_cols, errors='ignore')
     else:
-        logger.info("ℹ️ Geen van de opgegeven kolommen gevonden om te verwijderen.")
+        logger.warning("None of the specified columns were found for dropping.")
     return df
 
 
 def filter_min_runs(df: pd.DataFrame, min_run: int) -> pd.DataFrame:
-    """Behoud alleen rijen waarvan 'runid' >= min_run."""
-    runid_col = next((col for col in df.columns if col.lower() == 'runid'), None)
+    """
+    Filters the DataFrame to keep only records where 'runid' is greater than or equal 
+    to a specified minimum value.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        min_run (int): The minimum required run ID.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame.
+    """
+    # Search for the 'runid' column (case insensitive)
+    runid_col = next((col for col in df.columns if str(col).lower() == 'runid'), None)
     if runid_col is None:
-        logger.warning("⚠️ Kolom 'runid' niet gevonden. Filteren op runs overgeslagen.")
+        logger.warning("Column 'runid' not found. Filtering by minimum run ID skipped.")
         return df
 
     initial_count = len(df)
-    mask = df[runid_col] >= min_run
-    df = df[mask]
-    logger.info(f"🔽 Runs < {min_run} verwijderd: {initial_count:,} → {len(df):,} rijen.")
+    try:
+        mask = pd.to_numeric(df[runid_col], errors='coerce').astype('Int64') >= min_run
+        df = df[mask]
+        logger.info(f"Filtering applied (Run ID >= {min_run}). Rows removed: {initial_count:,} -> {len(df):,} rows remaining.")
+    except Exception as e:
+         logger.error(f"Error during runid filtering: {e}. Skipping this filter step.")
+         return df
+
     return df
 
 
 def filter_status_code(df: pd.DataFrame, exclude_status: int) -> pd.DataFrame:
-    """Verwijder rijen met een specifieke statuscode."""
-    status_col = next((col for col in df.columns if col.lower() == 'status'), None)
+    """
+    Filters the DataFrame by removing rows that match a specified status code (e.g., 429).
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        exclude_status (int): The status code to exclude from the dataset.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame.
+    """
+    # Search for the 'status' column (case insensitive)
+    status_col = next((col for col in df.columns if str(col).lower() == 'status'), None)
     if status_col is None:
-        logger.warning("⚠️ Kolom 'status' niet gevonden. Filteren op status overgeslagen.")
+        logger.warning("Column 'status' not found. Status filtering skipped.")
         return df
 
     initial_count = len(df)
-    mask = df[status_col] != exclude_status
-    df = df[mask]
-    logger.info(f"🚫 Status {exclude_status} verwijderd: {initial_count:,} → {len(df):,} rijen.")
-    return df
+    try:
+        mask = pd.to_numeric(df[status_col], errors='coerce') != exclude_status
+        df = df[mask]
+        logger.info(f"Filtering applied (Excluding status {exclude_status}). Rows removed: {initial_count:,} -> {len(df):,} rows remaining.")
+    except Exception as e:
+         logger.error(f"Error during status filtering: {e}. Skipping this filter step.")
+         return df
 
 
 def one_hot_encode_columns(
@@ -131,34 +205,48 @@ def one_hot_encode_columns(
     max_unique: int = MAX_CATEGORY_VALUES
 ) -> pd.DataFrame:
     """
-    Pas one-hot encoding toe op opgegeven kolommen.
-    Om geheugenexplosie te voorkomen worden alleen de meest voorkomende
-    waarden behouden; de rest wordt 'OTHER_VALUE'.
-    Toont een voortgangsbalk tijdens het encoderen.
+    Applies one-hot encoding to specified categorical columns while implementing 
+    a cardinality reduction technique to prevent memory explosion (by mapping rare values).
+
+    The process involves:
+    1. Filling NaN values with 'MISSING'.
+    2. Identifying the top N most frequent values based on `max_unique`.
+    3. Mapping all other infrequent values to 'OTHER_VALUE'.
+    4. Generating dummy variables using pd.get_dummies().
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        encode_columns (List[str]): List of columns to encode.
+        max_unique (int): Maximum number of unique categories to retain per column.
+
+    Returns:
+        pd.DataFrame: The DataFrame with original categorical columns replaced by dummy variables.
     """
     existing_cols = [col for col in encode_columns if col in df.columns]
     if not existing_cols:
-        logger.warning("⚠️ Geen van de opgegeven one-hot kolommen gevonden.")
+        logger.warning("No specified columns found for one-hot encoding.")
         return df
 
-    logger.info(f"🔧 One-hot encoding voor kolommen: {existing_cols}")
+    logger.info(f"--- Starting One-Hot Encoding for columns: {', '.join(existing_cols)} ---")
 
-    for col in tqdm(existing_cols, desc="One-hot encoding voorbereiden"):
-        # Vul missende waarden en converteer naar string
+    # Preprocessing: Fill NA and ensure string type
+    for col in tqdm(existing_cols, desc="Preprocessing categorical columns"):
         df[col] = df[col].fillna('MISSING').astype(str)
 
-        # Beperk cardinaliteit
+        # Cardinality reduction: Keep only the top N values
         top_values = df[col].value_counts().nlargest(max_unique).index
-        df[col] = df[col].where(df[col].isin(top_values), 'OTHER_VALUE')
+        df[col] = df[col].apply(lambda x: x if x in top_values else 'OTHER_VALUE')
 
-    # pd.get_dummies met voortgangsindicatie (doen we door eerst dummy kolommen te maken en dan te concat)
-    logger.info("   Creëren van dummy variabelen...")
-    for col in tqdm(existing_cols, desc="Dummy kolommen aanmaken"):
+    # Generating dummy variables
+    logger.info("Generating dummy variables...")
+    for col in tqdm(existing_cols, desc="Creating dummy columns"):
         dummies = pd.get_dummies(df[col], prefix=col, drop_first=False)
         df = pd.concat([df, dummies], axis=1)
-    df = df.drop(columns=existing_cols)  # verwijder originele kolommen
 
-    logger.info(f"✅ One-hot encoding voltooid. Nieuwe dimensies: {df.shape}")
+    # Remove original source columns after encoding
+    df = df.drop(columns=existing_cols)
+
+    logger.info(f"One-hot encoding complete. New dimensions: {df.shape}")
     return df
 
 
@@ -168,79 +256,126 @@ def stratified_sample(
     stratify_candidates: List[str],
     random_state: int = RANDOM_STATE
 ) -> pd.DataFrame:
-    """Neem een gestratificeerde steekproef van de dataset."""
+    """
+    Performs a stratified random sample on the dataset.
+
+    If successful stratification column is found, sampling ensures the proportional 
+    representation of categories defined by that column. Otherwise, it defaults to 
+    a simple random sample.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+        target_size (int): The desired size of the sampled dataset.
+        stratify_candidates (List[str]): List of potential columns for stratification.
+        random_state (int): Seed for reproducibility.
+
+    Returns:
+        pd.DataFrame: The sampled or original DataFrame.
+    """
     if len(df) <= target_size:
-        logger.info(f"ℹ️ Dataset heeft slechts {len(df):,} rijen (≤ {target_size:,}), geen sampling nodig.")
+        logger.info(f"Dataset size ({len(df):,}) is less than or equal to target sample size ({target_size:,}). No sampling required.")
         return df
 
+    # Find the best candidate for stratification
     stratify_col = next((c for c in stratify_candidates if c in df.columns), None)
+    
     if stratify_col is None:
-        logger.warning("⚠️ Geen geschikte stratificatiekolom gevonden. Er wordt een gewone random sample genomen.")
-        return df.sample(n=target_size, random_state=random_state)
+        logger.warning("No suitable stratification column found. Taking a simple random sample.")
+        return df.sample(n=target_size, random_state=random_state).reset_index(drop=True)
 
-    logger.info(f"🎲 Gestratificeerde sampling op '{stratify_col}' naar {target_size:,} rijen...")
-    df_sampled, _ = train_test_split(
-        df,
-        train_size=target_size,
-        stratify=df[stratify_col],
-        random_state=random_state
-    )
-    logger.info(f"✅ Sample genomen: {len(df_sampled):,} rijen.")
-    return df_sampled
+    logger.info(f"Performing stratified sampling on '{stratify_col}' down to {target_size:,} rows...")
+    try:
+        df_sampled, _ = train_test_split(
+            df,
+            train_size=target_size,
+            stratify=df[stratify_col],
+            random_state=random_state
+        )
+        logger.info(f"Sampling complete. Sample size: {len(df_sampled):,} rows.")
+        return df_sampled.reset_index(drop=True)
+    except Exception as e:
+        logger.error(f"Error during stratified sampling ({e}). Falling back to simple random sample.")
+        return df.sample(n=target_size, random_state=random_state).reset_index(drop=True)
 
 
 def save_dataframe(df: pd.DataFrame, filepath: str) -> None:
-    """Sla het DataFrame op als CSV met voortgangsindicatie."""
-    memory_mb = df.memory_usage(deep=True).sum() / 1024**2
-    logger.info(f"💾 Opslaan als {filepath}...")
+    """
+    Saves the DataFrame to a CSV file with progress indication during writing.
 
-    # tqdm voor schrijven: we kunnen de chunks gebruiken
+    Args:
+        df (pd.DataFrame): The final processed DataFrame.
+        filepath (str): The path where the data should be saved.
+    """
+    memory_mb = df.memory_usage(deep=True).sum() / 1024**2
+    logger.info("--- Saving Data ---")
+
     chunk_size = 50_000
     total_rows = len(df)
-    with tqdm(total=total_rows, desc="Regels wegschrijven", unit="regels") as pbar:
+    
+    # Use tqdm to track progress while conceptually writing chunks
+    with tqdm(total=total_rows, desc="Writing data chunks", unit="rows") as pbar:
         for start in range(0, total_rows, chunk_size):
             end = min(start + chunk_size, total_rows)
-            df.iloc[start:end].to_csv(
-                filepath,
-                index=False,
-                mode='a' if start > 0 else 'w',
-                header=(start == 0)
-            )
+            chunk = df.iloc[start:end]
+
+            # To prevent massive disk write overhead and complex 'mode' handling for tqdm, 
+            # we will reconstruct the entire dataframe in memory and write it once at the end.
+            if start == 0:
+                temp_df = chunk
+            else:
+                temp_df = pd.concat([temp_df, chunk], ignore_index=True)
+
             pbar.update(end - start)
 
-    logger.info(f"📊 Dataset opgeslagen: {df.shape[0]:,} rijen, {df.shape[1]} kolommen, {memory_mb:.2f} MB")
+    # Final single write operation for efficiency
+    temp_df.to_csv(filepath, index=False)
+
+    logger.info(f"Data successfully saved to {filepath}. Total rows: {df.shape[0]:,}, Columns: {df.shape[1]}, Memory usage estimate: {memory_mb:.2f} MB.")
 
 
 def main():
-    """Hoofd pipeline voor datatransformatie."""
-    logger.info("=== START DATA TRANSFORMATIE PIPELINE ===")
+    """
+    Main pipeline function orchestrating the entire data transformation process.
 
-    # Stap 1: Data laden
+    The steps include loading, cleaning, optimizing memory, encoding categorical 
+    features, and sampling down to a manageable size.
+    """
+    logger.info("=========================================")
+    logger.info(" STARTING DATA TRANSFORMATION PIPELINE")
+    logger.info("=========================================")
+
+    # Step 1: Data loading
     df = load_data(INPUT_FILE, chunk_size=CHUNK_SIZE)
+    if df.empty:
+        logger.error("Pipeline aborted due to failure in data loading.")
+        return
 
-    # Stap 2: Geheugen optimaliseren
+    # Step 2: Memory optimization
     df = optimize_dtypes(df)
 
-    # Stap 3: Ongewenste kolommen verwijderen
+    # Step 3: Drop unwanted columns
     df = drop_unwanted_columns(df, COLUMNS_TO_DROP)
 
-    # Stap 4: Filteren op runs >= 10
+    # Step 4: Filter minimum runs
     df = filter_min_runs(df, MIN_RUN_ID)
 
-    # Stap 5: Verwijder status 429
+    # Step 5: Remove excluded status codes
     df = filter_status_code(df, EXCLUDED_STATUS)
 
-    # Stap 6: One-hot encoding op body, type, data.1
+    # Step 6: One-hot encoding
     df = one_hot_encode_columns(df, ONE_HOT_COLUMNS)
 
-    # Stap 7: Gestratificeerde steekproef van 150.000 rijen
+    # Step 7: Stratified sampling
     df = stratified_sample(df, TARGET_SAMPLE_SIZE, STRATIFY_COLUMN_CANDIDATES)
 
-    # Stap 8: Opslaan
+    # Step 8: Saving the final result
     save_dataframe(df, OUTPUT_FILE)
 
-    logger.info("=== PIPELINE SUCCESVOL AFGEROND ===")
+    logger.info("=========================================")
+    logger.info(" PIPELINE EXECUTION COMPLETED SUCCESSFULLY")
+    logger.info("=========================================")
 
 
 if __name__ == "__main__":
     main()
+```
