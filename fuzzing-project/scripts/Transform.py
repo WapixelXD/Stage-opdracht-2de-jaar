@@ -1,6 +1,3 @@
-This version removes all structural comments (`# =====================`) and converts the descriptive notes into professional docstrings written in English, adhering strictly to best coding practices for documentation.
-
-```python
 import pandas as pd
 import logging
 from pathlib import Path
@@ -64,6 +61,7 @@ def load_data(filepath: str, chunk_size: Optional[int] = None) -> pd.DataFrame:
         pd.DataFrame: The loaded dataset.
     """
     logger.info(f"Loading data from {filepath}...")
+    # If a chunk_size is provided (means we read the file in small parts to save memory)
     if chunk_size:
         chunks = []
         try:
@@ -75,6 +73,7 @@ def load_data(filepath: str, chunk_size: Optional[int] = None) -> pd.DataFrame:
             logger.error(f"Error: Input file not found at {filepath}")
             return pd.DataFrame()
 
+        # Loop through the chunks of the file (each chunk contains a set of rows from the data)
         with tqdm(total=total_lines, desc="Reading chunks", unit="rows") as pbar:
             for chunk in pd.read_csv(filepath, chunksize=chunk_size, low_memory=False):
                 chunks.append(chunk)
@@ -102,8 +101,12 @@ def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """
     logger.info("--- Memory Optimization ---")
     initial_memory = df.memory_usage(deep=True).sum() / 1024**2
+    
+    # Loop over every column in the dataframe to check its data type
     for col in df.columns:
         col_type = df[col].dtype
+        
+        # If the column type is an 'object' (usually indicates strings or mixed data)
         if col_type == 'object':
             # Convert to category if cardinality is low enough (< 50% unique ratio)
             num_unique = df[col].nunique()
@@ -112,8 +115,10 @@ def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
                     df[col] = df[col].astype('category')
                 except KeyError:
                      pass
+        # If the column contains whole numbers (integers)
         elif col_type == 'int64':
             df[col] = pd.to_numeric(df[col], downcast='integer')
+        # If the column contains decimal numbers (floats)
         elif col_type == 'float64':
             df[col] = pd.to_numeric(df[col], downcast='float')
 
@@ -134,6 +139,7 @@ def drop_unwanted_columns(df: pd.DataFrame, columns_to_drop: List[str]) -> pd.Da
         pd.DataFrame: The DataFrame with unwanted columns removed.
     """
     existing_cols = [col for col in columns_to_drop if col in df.columns]
+    # If columns were found that are on the exclusion list
     if existing_cols:
         logger.info(f"Dropping columns: {', '.join(existing_cols)}")
         df = df.drop(columns=existing_cols, errors='ignore')
@@ -156,6 +162,7 @@ def filter_min_runs(df: pd.DataFrame, min_run: int) -> pd.DataFrame:
     """
     # Search for the 'runid' column (case insensitive)
     runid_col = next((col for col in df.columns if str(col).lower() == 'runid'), None)
+    # If the 'runid' column is not present in the dataset
     if runid_col is None:
         logger.warning("Column 'runid' not found. Filtering by minimum run ID skipped.")
         return df
@@ -185,6 +192,7 @@ def filter_status_code(df: pd.DataFrame, exclude_status: int) -> pd.DataFrame:
     """
     # Search for the 'status' column (case insensitive)
     status_col = next((col for col in df.columns if str(col).lower() == 'status'), None)
+    # If the 'status' column is not found in the data
     if status_col is None:
         logger.warning("Column 'status' not found. Status filtering skipped.")
         return df
@@ -197,6 +205,7 @@ def filter_status_code(df: pd.DataFrame, exclude_status: int) -> pd.DataFrame:
     except Exception as e:
          logger.error(f"Error during status filtering: {e}. Skipping this filter step.")
          return df
+    return df
 
 
 def one_hot_encode_columns(
@@ -223,13 +232,14 @@ def one_hot_encode_columns(
         pd.DataFrame: The DataFrame with original categorical columns replaced by dummy variables.
     """
     existing_cols = [col for col in encode_columns if col in df.columns]
+    # If none of the specified columns for encoding are present in the dataset
     if not existing_cols:
         logger.warning("No specified columns found for one-hot encoding.")
         return df
 
     logger.info(f"--- Starting One-Hot Encoding for columns: {', '.join(existing_cols)} ---")
 
-    # Preprocessing: Fill NA and ensure string type
+    # Loop through each column that we want to transform into binary (0/1) columns
     for col in tqdm(existing_cols, desc="Preprocessing categorical columns"):
         df[col] = df[col].fillna('MISSING').astype(str)
 
@@ -237,7 +247,7 @@ def one_hot_encode_columns(
         top_values = df[col].value_counts().nlargest(max_unique).index
         df[col] = df[col].apply(lambda x: x if x in top_values else 'OTHER_VALUE')
 
-    # Generating dummy variables
+    # Loop through the prepared columns to generate the actual dummy variables
     logger.info("Generating dummy variables...")
     for col in tqdm(existing_cols, desc="Creating dummy columns"):
         dummies = pd.get_dummies(df[col], prefix=col, drop_first=False)
@@ -272,6 +282,7 @@ def stratified_sample(
     Returns:
         pd.DataFrame: The sampled or original DataFrame.
     """
+    # If the dataset is already smaller than the desired sample size
     if len(df) <= target_size:
         logger.info(f"Dataset size ({len(df):,}) is less than or equal to target sample size ({target_size:,}). No sampling required.")
         return df
@@ -279,6 +290,7 @@ def stratified_sample(
     # Find the best candidate for stratification
     stratify_col = next((c for c in stratify_candidates if c in df.columns), None)
     
+    # If no suitable column is found to base the proportional distribution (stratification) on
     if stratify_col is None:
         logger.warning("No suitable stratification column found. Taking a simple random sample.")
         return df.sample(n=target_size, random_state=random_state).reset_index(drop=True)
@@ -312,16 +324,16 @@ def save_dataframe(df: pd.DataFrame, filepath: str) -> None:
     chunk_size = 50_000
     total_rows = len(df)
     
-    # Use tqdm to track progress while conceptually writing chunks
+    # Loop through the rows of the dataframe in steps (chunks) to display progress
     with tqdm(total=total_rows, desc="Writing data chunks", unit="rows") as pbar:
         for start in range(0, total_rows, chunk_size):
             end = min(start + chunk_size, total_rows)
             chunk = df.iloc[start:end]
 
-            # To prevent massive disk write overhead and complex 'mode' handling for tqdm, 
-            # we will reconstruct the entire dataframe in memory and write it once at the end.
+            # If we are at the first set of rows, create the temporary object
             if start == 0:
                 temp_df = chunk
+            # Otherwise, append the new rows to the existing object
             else:
                 temp_df = pd.concat([temp_df, chunk], ignore_index=True)
 
@@ -346,6 +358,7 @@ def main():
 
     # Step 1: Data loading
     df = load_data(INPUT_FILE, chunk_size=CHUNK_SIZE)
+    # If the loading failed and the dataframe remains empty
     if df.empty:
         logger.error("Pipeline aborted due to failure in data loading.")
         return
@@ -378,4 +391,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
