@@ -1,10 +1,9 @@
 import pandas as pd
 import logging
-from pathlib import Path
-from sklearn.model_selection import train_test_split
 from typing import Optional, List
 from tqdm import tqdm
 import numpy as np
+import re # Import regex library for cleaning names
 
 
 # ======================== CONFIGURATION ========================
@@ -15,23 +14,20 @@ RANDOM_STATE = 42
 MIN_RUN_ID = 10
 EXCLUDED_STATUS = 429
 
-
 # Columns that must be completely dropped
-COLUMNS_TO_DROP = ['id.1', 'url', 'testcase', 'data', 'error', 'timestamp.1', 'reqid']
+COLUMNS_TO_DROP: List[str] = ['id.1', 'url', 'testcase', 'data', 'error', 'timestamp.1', 'reqid', 'timestamp']
 
 # Columns for one-hot encoding
-ONE_HOT_COLUMNS = ['body', 'type', 'data.1', "path"]
+ONE_HOT_COLUMNS: List[str] = ['body', 'type', 'data.1', "path"]
 
 # Maximum number of unique values per categorical column (prevents explosion)
-MAX_CATEGORY_VALUES = 250
+MAX_CATEGORY_VALUES: int = 250
 
 # Stratification column candidates (if available in the data)
-STRATIFY_COLUMN_CANDIDATES = ['type', 'status']
+STRATIFY_COLUMN_CANDIDATES: List[str] = ['type', 'status']
 
 # Chunk size for incremental reading (Set to None to read everything at once)
-CHUNK_SIZE = 100_000 # Adjust based on available RAM
-
-
+CHUNK_SIZE: Optional[int] = 100_000 # Adjust based on available RAM
 # ===============================================================
 
 
@@ -41,7 +37,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 # Makes tqdm accessible for pandas operations (progress bars)
 tqdm.pandas()
 
@@ -49,9 +44,6 @@ tqdm.pandas()
 def load_data(filepath: str, chunk_size: Optional[int] = None) -> pd.DataFrame:
     """
     Loads the CSV file with optional chunking and progress tracking.
-
-    If chunk_size is provided, the file is read in parts and concatenated.
-    This function includes logic for estimating total rows for accurate progress display.
 
     Args:
         filepath (str): The path to the input CSV file.
@@ -61,17 +53,16 @@ def load_data(filepath: str, chunk_size: Optional[int] = None) -> pd.DataFrame:
         pd.DataFrame: The loaded dataset.
     """
     logger.info(f"Loading data from {filepath}...")
-    # If a chunk_size is provided (means we read the file in small parts to save memory)
     if chunk_size:
         chunks = []
         try:
             # Estimate total rows for accurate progress bar
             with open(filepath, 'rb') as f:
-                total_lines = sum(1 for _ in f) - 1  # minus header
+                total_lines = sum(1 for _ in f) - 1 # minus header
             logger.info(f"Estimated total rows: {total_lines:,}")
         except FileNotFoundError:
-            logger.error(f"Error: Input file not found at {filepath}")
-            return pd.DataFrame()
+             logger.error(f"Error: Input file not found at {filepath}")
+             return pd.DataFrame()
 
         # Loop through the chunks of the file (each chunk contains a set of rows from the data)
         with tqdm(total=total_lines, desc="Reading chunks", unit="rows") as pbar:
@@ -102,25 +93,30 @@ def optimize_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     logger.info("--- Memory Optimization ---")
     initial_memory = df.memory_usage(deep=True).sum() / 1024**2
     
-    # Loop over every column in the dataframe to check its data type
     for col in df.columns:
         col_type = df[col].dtype
         
-        # If the column type is an 'object' (usually indicates strings or mixed data)
         if col_type == 'object':
-            # Convert to category if cardinality is low enough (< 50% unique ratio)
             num_unique = df[col].nunique()
-            if num_unique / len(df) < 0.5:
+            # Convert to category if cardinality is low enough (< 50% unique ratio) and not too large
+            if num_unique / len(df) < 0.5 and num_unique > 1:
                 try:
                     df[col] = df[col].astype('category')
-                except KeyError:
-                     pass
-        # If the column contains whole numbers (integers)
+                except Exception as e:
+                     logger.warning(f"Skipping category conversion for '{col}': {e}")
+
         elif col_type == 'int64':
-            df[col] = pd.to_numeric(df[col], downcast='integer')
-        # If the column contains decimal numbers (floats)
+            # Downcast integer types
+            try:
+                df[col] = pd.to_numeric(df[col], downcast='integer')
+            except Exception:
+                pass 
         elif col_type == 'float64':
-            df[col] = pd.to_numeric(df[col], downcast='float')
+            # Downcast float types
+            try:
+                df[col] = pd.to_numeric(df[col], downcast='float')
+            except Exception:
+                pass
 
     final_memory = df.memory_usage(deep=True).sum() / 1024**2
     logger.info(f"Memory optimization complete. Original size: {initial_memory:.2f} MB, Optimized size: {final_memory:.2f} MB")
@@ -139,7 +135,6 @@ def drop_unwanted_columns(df: pd.DataFrame, columns_to_drop: List[str]) -> pd.Da
         pd.DataFrame: The DataFrame with unwanted columns removed.
     """
     existing_cols = [col for col in columns_to_drop if col in df.columns]
-    # If columns were found that are on the exclusion list
     if existing_cols:
         logger.info(f"Dropping columns: {', '.join(existing_cols)}")
         df = df.drop(columns=existing_cols, errors='ignore')
@@ -162,19 +157,19 @@ def filter_min_runs(df: pd.DataFrame, min_run: int) -> pd.DataFrame:
     """
     # Search for the 'runid' column (case insensitive)
     runid_col = next((col for col in df.columns if str(col).lower() == 'runid'), None)
-    # If the 'runid' column is not present in the dataset
     if runid_col is None:
         logger.warning("Column 'runid' not found. Filtering by minimum run ID skipped.")
         return df
 
     initial_count = len(df)
     try:
+        # Use safe numeric conversion for filtering
         mask = pd.to_numeric(df[runid_col], errors='coerce').astype('Int64') >= min_run
         df = df[mask]
         logger.info(f"Filtering applied (Run ID >= {min_run}). Rows removed: {initial_count:,} -> {len(df):,} rows remaining.")
     except Exception as e:
-         logger.error(f"Error during runid filtering: {e}. Skipping this filter step.")
-         return df
+          logger.error(f"Error during runid filtering: {e}. Skipping this filter step.")
+          return df
 
     return df
 
@@ -192,36 +187,30 @@ def filter_status_code(df: pd.DataFrame, exclude_status: int) -> pd.DataFrame:
     """
     # Search for the 'status' column (case insensitive)
     status_col = next((col for col in df.columns if str(col).lower() == 'status'), None)
-    # If the 'status' column is not found in the data
     if status_col is None:
         logger.warning("Column 'status' not found. Status filtering skipped.")
         return df
 
     initial_count = len(df)
     try:
+        # Safe numeric conversion for comparison
         mask = pd.to_numeric(df[status_col], errors='coerce') != exclude_status
         df = df[mask]
         logger.info(f"Filtering applied (Excluding status {exclude_status}). Rows removed: {initial_count:,} -> {len(df):,} rows remaining.")
     except Exception as e:
-         logger.error(f"Error during status filtering: {e}. Skipping this filter step.")
-         return df
+          logger.error(f"Error during status filtering: {e}. Skipping this filter step.")
+          return df
     return df
 
 
 def one_hot_encode_columns(
-    df: pd.DataFrame,
-    encode_columns: List[str],
+    df: pd.DataFrame, 
+    encode_columns: List[str], 
     max_unique: int = MAX_CATEGORY_VALUES
 ) -> pd.DataFrame:
     """
     Applies one-hot encoding to specified categorical columns while implementing 
     a cardinality reduction technique to prevent memory explosion (by mapping rare values).
-
-    The process involves:
-    1. Filling NaN values with 'MISSING'.
-    2. Identifying the top N most frequent values based on `max_unique`.
-    3. Mapping all other infrequent values to 'OTHER_VALUE'.
-    4. Generating dummy variables using pd.get_dummies().
 
     Args:
         df (pd.DataFrame): The input DataFrame.
@@ -232,31 +221,65 @@ def one_hot_encode_columns(
         pd.DataFrame: The DataFrame with original categorical columns replaced by dummy variables.
     """
     existing_cols = [col for col in encode_columns if col in df.columns]
-    # If none of the specified columns for encoding are present in the dataset
     if not existing_cols:
         logger.warning("No specified columns found for one-hot encoding.")
         return df
 
     logger.info(f"--- Starting One-Hot Encoding for columns: {', '.join(existing_cols)} ---")
 
-    # Loop through each column that we want to transform into binary (0/1) columns
     for col in tqdm(existing_cols, desc="Preprocessing categorical columns"):
+        # 1. Fill NaN and convert to string
         df[col] = df[col].fillna('MISSING').astype(str)
 
-        # Cardinality reduction: Keep only the top N values
-        top_values = df[col].value_counts().nlargest(max_unique).index
+        # 2. Cardinality reduction (Grouping rare/unknown values)
+        value_counts = df[col].value_counts()
+        top_values = value_counts.nlargest(max_unique).index
         df[col] = df[col].apply(lambda x: x if x in top_values else 'OTHER_VALUE')
 
-    # Loop through the prepared columns to generate the actual dummy variables
+    # 3. Generate dummy variables
     logger.info("Generating dummy variables...")
     for col in tqdm(existing_cols, desc="Creating dummy columns"):
         dummies = pd.get_dummies(df[col], prefix=col, drop_first=False)
         df = pd.concat([df, dummies], axis=1)
 
-    # Remove original source columns after encoding
+    # 4. Remove original source columns
     df = df.drop(columns=existing_cols)
 
     logger.info(f"One-hot encoding complete. New dimensions: {df.shape}")
+    return df
+
+
+def sanitize_column_names(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    CLEANS COLUMN NAMES to ensure they are safe for use in machine learning 
+    libraries (like XGBoost), removing special characters that cause ValueErrors.
+
+    It replaces unsafe characters with underscores.
+
+    Args:
+        df (pd.DataFrame): The DataFrame with potentially unsafe column names.
+
+    Returns:
+        pd.DataFrame: The DataFrame with sanitized, ML-safe column names.
+    """
+    logger.warning("--- Running Column Name Sanitization Check ---")
+    initial_cols = list(df.columns)
+    new_cols = []
+    
+    # Regex to find any character that is NOT a letter, number, or underscore
+    pattern = re.compile(r'[^\w]') 
+
+    for col in initial_cols:
+        sanitized_col = pattern.sub('', col) # Replace unsafe characters with nothing
+        new_cols.append(sanitized_col)
+
+    # Check if any changes were made
+    if new_cols != initial_cols:
+        logger.info("Column names sanitized successfully.")
+        df.columns = new_cols
+    else:
+        logger.info("No illegal characters detected in column names; no sanitization needed.")
+        
     return df
 
 
@@ -282,21 +305,22 @@ def stratified_sample(
     Returns:
         pd.DataFrame: The sampled or original DataFrame.
     """
-    # If the dataset is already smaller than the desired sample size
-    if len(df) <= target_size:
-        logger.info(f"Dataset size ({len(df):,}) is less than or equal to target sample size ({target_size:,}). No sampling required.")
-        return df
+    initial_count = len(df)
+    if initial_count <= target_size:
+        logger.info(f"Dataset size ({initial_count:,}) is less than or equal to target sample size ({target_size:,}). No sampling required.")
+        return df.copy()
 
-    # Find the best candidate for stratification
     stratify_col = next((c for c in stratify_candidates if c in df.columns), None)
     
-    # If no suitable column is found to base the proportional distribution (stratification) on
     if stratify_col is None:
         logger.warning("No suitable stratification column found. Taking a simple random sample.")
         return df.sample(n=target_size, random_state=random_state).reset_index(drop=True)
 
     logger.info(f"Performing stratified sampling on '{stratify_col}' down to {target_size:,} rows...")
     try:
+        # This block requires scikit-learn and is the source of the reported error.
+        from sklearn.model_selection import train_test_split 
+
         df_sampled, _ = train_test_split(
             df,
             train_size=target_size,
@@ -305,8 +329,15 @@ def stratified_sample(
         )
         logger.info(f"Sampling complete. Sample size: {len(df_sampled):,} rows.")
         return df_sampled.reset_index(drop=True)
+
+    except NameError as e:
+        # Catches the 'name is not defined' error explicitly
+        logger.error(f"Dependency Error encountered during stratification ({e}). This usually means scikit-learn is missing or scoped incorrectly.")
+        logger.warning("Falling back to simple random sample instead.")
+        return df.sample(n=target_size, random_state=random_state).reset_index(drop=True)
     except Exception as e:
-        logger.error(f"Error during stratified sampling ({e}). Falling back to simple random sample.")
+        # Catches other errors (e.g., memory issues, or data imbalance during stratification)
+        logger.error(f"General Error encountered during stratified sampling ({type(e).__name__}: {e}). Falling back to simple random sample.")
         return df.sample(n=target_size, random_state=random_state).reset_index(drop=True)
 
 
@@ -321,23 +352,23 @@ def save_dataframe(df: pd.DataFrame, filepath: str) -> None:
     memory_mb = df.memory_usage(deep=True).sum() / 1024**2
     logger.info("--- Saving Data ---")
 
-    chunk_size = 50_000
     total_rows = len(df)
-    
+    chunk_size = 50_000
+    temp_df = pd.DataFrame() # Initialize temporary storage for concatenation
+
     # Loop through the rows of the dataframe in steps (chunks) to display progress
     with tqdm(total=total_rows, desc="Writing data chunks", unit="rows") as pbar:
         for start in range(0, total_rows, chunk_size):
             end = min(start + chunk_size, total_rows)
             chunk = df.iloc[start:end]
 
-            # If we are at the first set of rows, create the temporary object
             if start == 0:
                 temp_df = chunk
-            # Otherwise, append the new rows to the existing object
             else:
+                # Concatenate to temporary storage (this is safer than mode='a')
                 temp_df = pd.concat([temp_df, chunk], ignore_index=True)
 
-            pbar.update(end - start)
+            pbar.update(len(chunk))
 
     # Final single write operation for efficiency
     temp_df.to_csv(filepath, index=False)
@@ -348,25 +379,23 @@ def save_dataframe(df: pd.DataFrame, filepath: str) -> None:
 def main():
     """
     Main pipeline function orchestrating the entire data transformation process.
-
-    The steps include loading, cleaning, optimizing memory, encoding categorical 
-    features, and sampling down to a manageable size.
+    The addition of `sanitize_column_names` addresses the XGBoost ValueError 
+    by cleaning up illegal characters in column headers.
     """
     logger.info("=========================================")
     logger.info(" STARTING DATA TRANSFORMATION PIPELINE")
-    logger.info("=========================================")
+    logger.info("=========================================\n")
 
     # Step 1: Data loading
     df = load_data(INPUT_FILE, chunk_size=CHUNK_SIZE)
-    # If the loading failed and the dataframe remains empty
     if df.empty:
-        logger.error("Pipeline aborted due to failure in data loading.")
+        logger.critical("Pipeline aborted due to failure in data loading or empty dataset.")
         return
 
-    # Step 2: Memory optimization
+    # Step 2: Memory optimization (Type Casting)
     df = optimize_dtypes(df)
 
-    # Step 3: Drop unwanted columns
+    # Step 3: Column Removal
     df = drop_unwanted_columns(df, COLUMNS_TO_DROP)
 
     # Step 4: Filter minimum runs
@@ -375,8 +404,12 @@ def main():
     # Step 5: Remove excluded status codes
     df = filter_status_code(df, EXCLUDED_STATUS)
 
-    # Step 6: One-hot encoding
+    # Step 6: One-hot encoding (Feature Engineering)
     df = one_hot_encode_columns(df, ONE_HOT_COLUMNS)
+    
+    # === NEW CRITICAL STEP TO FIX XGBOOST VALUEERROR ===
+    # Sanitizes column names to ensure compatibility with ML libraries.
+    df = sanitize_column_names(df)
 
     # Step 7: Stratified sampling
     df = stratified_sample(df, TARGET_SAMPLE_SIZE, STRATIFY_COLUMN_CANDIDATES)
@@ -384,8 +417,8 @@ def main():
     # Step 8: Saving the final result
     save_dataframe(df, OUTPUT_FILE)
 
-    logger.info("=========================================")
-    logger.info(" PIPELINE EXECUTION COMPLETED SUCCESSFULLY")
+    logger.info("\n=========================================")
+    logger.info("PIPELINE EXECUTION COMPLETED SUCCESSFULLY")
     logger.info("=========================================")
 
 
