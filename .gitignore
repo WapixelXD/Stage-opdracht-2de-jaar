@@ -1,2 +1,3 @@
 fuzzing-project/reports/grafana/report.db
 fuzzing-project/venv
+fuzzing-project/scripts/ipynb_checkpoints
