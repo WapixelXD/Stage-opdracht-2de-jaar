@@ -1,3 +1,8 @@
+# Specifiek database rapport uitsluiten
 fuzzing-project/reports/grafana/report.db
-fuzzing-project/venv
-fuzzing-project/scripts/ipynb_checkpoints
+
+# De complete venv map uitsluiten (alles wat erin zit)
+fuzzing-project/venv/
+
+# Alle Jupyter checkpoint mappen uitsluiten, waar ze ook staan
+**/.ipynb_checkpoints/
