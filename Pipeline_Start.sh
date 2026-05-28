@@ -2,7 +2,7 @@
 set -e
 
 echo "Navigeren naar de scripts-map..."
-# Ga naar de juiste map toe
+
 cd fuzzing-project/scripts
 
 echo "Starten met het uitvoeren van de Python-scripts..."
