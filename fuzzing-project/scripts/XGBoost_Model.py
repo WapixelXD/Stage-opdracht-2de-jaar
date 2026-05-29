@@ -55,7 +55,7 @@ status_group_mapping = {
 
 df["status_grouped"] = df[TARGET_COL].map(status_group_mapping)
 
-# ERROR = 1 (Positieve klasse), SUCCESS = 0 (Negatieve klasse)
+# ERROR = 1 (Positive class), SUCCESS = 0 (Negative class)
 binary_mapping = {"SUCCESS": 0, "ERROR": 1}
 df[TARGET_COL] = df["status_grouped"].map(binary_mapping)
 df.drop(columns=["status_grouped"], inplace=True)
@@ -85,7 +85,7 @@ del X, y
 gc.collect()
 
 # ==========================================
-# 5. CLASS WEIGHTS BEREKENEN
+# 5. CALCULATE CLASS WEIGHTS
 # ==========================================
 print("\n4. Calculating class weights...")
 class_counts = y_train.value_counts().sort_index()
@@ -140,13 +140,11 @@ bst = xgb.train(
 # ==========================================
 print("\n=== EVALUATION ===")
 
-
 preds_prob = bst.predict(dval)
-
 
 y_pred = (preds_prob >= 0.35).astype(int)
 
-# Berekening AUC-ROC blijft perfect zo:
+# Calculate AUC-ROC score
 auc_score = roc_auc_score(y_val, preds_prob)
 print(f"Final AUC-ROC Score: {auc_score:.4f}")
 print("-" * 40)
@@ -166,31 +164,30 @@ sns.heatmap(
     yticklabels=['SUCCESS', 'ERROR']
 )
 
-plt.ylabel('Werkelijke Klasse')
-plt.xlabel('Voorspelde Klasse')
+plt.ylabel('Actual Class')
+plt.xlabel('Predicted Class')
 plt.title('API Status Prediction - Confusion Matrix')
 plt.savefig('Confusion_Matrix.png')
 plt.show()
 
-import os
 
 def export_best_model(model, file_path="best_api_xgboost_model.json"):
     """
-    Exporteert het getrainde XGBoost model naar de schijf.
+    Exports the trained XGBoost model to disk.
     """
     try:
-        print(f"\n[INFO] Model exporteren naar {file_path}...")
+        print(f"\n[INFO] Exporting model to {file_path}...")
         
-        # Sla het model op in het native XGBoost JSON-formaat
+        # Save the model in native XGBoost JSON format
         model.save_model(file_path)
         
         if os.path.exists(file_path):
-            print(f"[SUCCESS] Model succesvol opgeslagen! Bestandsgrootte: {os.path.getsize(file_path) / 1024:.2f} KB")
+            print(f"[SUCCESS] Model successfully saved! File size: {os.path.getsize(file_path) / 1024:.2f} KB")
         else:
-            print("[WARNING] Export voltooid, maar bestand kon niet worden geverifieerd.")
+            print("[WARNING] Export completed, but file could not be verified.")
             
     except Exception as e:
-        print(f"[ERROR] Fout opgetreden tijdens het exporteren van het model: {e}")
+        print(f"[ERROR] An error occurred while exporting the model: {e}")
 
 
 export_best_model(bst)

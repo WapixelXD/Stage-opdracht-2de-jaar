@@ -8,6 +8,6 @@ Er zitten:
 - Document met rapport
 - Korte bestand met hoe je de fuzzer gebruikt
 
-**Note:** Het bestand `requests_responses.csv` is beschikbaar in de [releases](https://github.com/WapixelXD/Stage-opdracht-2de-jaar/releases) vanwege de grootte van het bestand (> 2GB).
+**Note:** Het bestand `requests_responses.csv` en `transformed_data_sampled.csv` is beschikbaar in de [releases](https://github.com/WapixelXD/Stage-opdracht-2de-jaar/releases) vanwege de grootte van het bestand (> 100MB).
 
 
