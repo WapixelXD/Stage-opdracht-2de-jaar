@@ -13,6 +13,7 @@ Er zitten:
 
 # Directory Tree
 Dit is hoe het project is ingedeeld
+
 Stage-opdracht-2de-jaar/
 ├── .gitignore
 ├── fuzzing-project/
