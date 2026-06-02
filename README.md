@@ -2,13 +2,23 @@
 Voor school heb ik in de tweede jaar stage gelopen. Deze heb ik gedaan bij de Data Science Centre of Excellence, Defensie.
 Daarvoor heb ik als opdracht om te kijken tot hoeverre ik een fuzzing ouput dataset kan gebruiken met AI. Deze repo is voor de bestanden die ik heb gebruikt te laten zien
 
-Er zitten:
+**Note:** Het bestand `requests_responses.csv` en `transformed_data_sampled.csv` is beschikbaar in de [releases](https://github.com/WapixelXD/Stage-opdracht-2de-jaar/releases) vanwege de grootte van het bestand (> 100MB).
+
+In deze repository zitten deze bestanden als volgt:
 - Bestanden voor de corpus
 - bestanden voor de data analyse
 - Document met rapport
-- Korte bestand met hoe je de fuzzer gebruikt
+- De model bestand, code en datasets
 
-**Note:** Het bestand `requests_responses.csv` en `transformed_data_sampled.csv` is beschikbaar in de [releases](https://github.com/WapixelXD/Stage-opdracht-2de-jaar/releases) vanwege de grootte van het bestand (> 100MB).
+
+In de readme.md staat als volgt:
+- Link naar de tutorial van WuppieFuzz van TNO
+- Directory tree, over hoe het repo is opgebouwd
+- Pipeline script
+- Korte uitleg over hoe je het project gebruikt.
+
+
+
 
 
 ## Directory Tree
