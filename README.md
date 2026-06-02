@@ -11,25 +11,27 @@ Er zitten:
 **Note:** Het bestand `requests_responses.csv` en `transformed_data_sampled.csv` is beschikbaar in de [releases](https://github.com/WapixelXD/Stage-opdracht-2de-jaar/releases) vanwege de grootte van het bestand (> 100MB).
 
 
-# Directory Tree
-Dit is hoe het project is ingedeeld
+## Directory Tree
 
+Dit is hoe het project is ingedeeld:
+
+```text
 Stage-opdracht-2de-jaar/
 ├── .gitignore
 ├── fuzzing-project/
 │   ├── header.yaml
 │   ├── login.yaml
-│   ├── openapi.json
-│   ├── scripts/
-│   │   ├── best_api_xgboost_model.json
-│   │   ├── Confusion_Matrix.png
-│   │   ├── EDA.ipynb
-│   │   ├── Extract.py
-│   │   ├── jacocoagent.jar
-│   │   ├── Transform.py
-│   │   ├── XGBoost_Model.ipynb
-│   │   └── XGBoost_Model.py
-│   └── seeds/
+│   └── openapi.json
+├── scripts/
+│   ├── best_api_xgboost_model.json
+│   ├── Confusion_Matrix.png
+│   ├── EDA.ipynb
+│   ├── Extract.py
+│   ├── jacocoagent.jar
+│   ├── Transform.py
+│   └── XGBoost_Model.ipynb
+├── XGBoost_Model.py
+├── seeds/
 ├── Pipeline_Start.sh
 ├── README.md
 └── requirements.txt
