@@ -28,6 +28,8 @@ Dit is hoe het project is ingedeeld:
 ```text
 Stage-opdracht-2de-jaar/
 ├── .gitignore
+├── Pipeline_Start.sh
+├── README.md
 ├── fuzzing-project/
 │   ├── header.yaml
 │   ├── login.yaml
@@ -40,8 +42,6 @@ Stage-opdracht-2de-jaar/
 │   ├── jacocoagent.jar
 │   ├── Transform.py
 │   └── XGBoost_Model.ipynb
-├── XGBoost_Model.py
+|   └── XGBoost_Model.py
 ├── seeds/
-├── Pipeline_Start.sh
-├── README.md
 └── requirements.txt
