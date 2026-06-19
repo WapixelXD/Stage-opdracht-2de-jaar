@@ -1,4 +1,4 @@
-# Stage-opdracht 2de Jaar - AI op Fuzzing Output
+# Stage-opdracht 2de Jaar - AI Integrated Fuzzing
 
 Dit project is uitgevoerd in het kader van een tweedejaars HBO-stage bij het Data Science Centre of Excellence (DSCE) van het Ministerie van Defensie. Het doel van het onderzoek is om te bepalen in hoeverre een dataset bestaande uit fuzzing-output geanalyseerd, verwerkt en geclassificeerd kan worden met behulp van kunstmatige intelligentie (AI), specifiek met een XGBoost-model.
 
