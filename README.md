@@ -83,6 +83,13 @@ Dit script doorloopt sequentieel de volgende stappen:
 Voor  het EDA en visualiseringen kan de Jupyter Notebook (`EDA.ipynb`) worden geopend.
 Het resultaat plaatje kunt vinden in zowel het `Onderzoeksverslag.pdf` en `Confusion_Matrix.png` vinden.
 
+## Onderzoeksverslag
+Het `Onderzoeksverslag.pdf` is het verslag dat het project vastlegt, van Technische Competenties naar Responsible AI en wat er gedaan is en waarom het juist zo is gedaan. Er staat uitgebereide informatie over onder andere:
+1. Technische afwegingen
+2. Organisatorische Beslissingen
+3. Methodologie
+4. Modelkeuze
+En meer.
 
 
 
@@ -113,6 +120,6 @@ model.load_model('fuzzing-project/scripts/best_api_xgboost_model.json')
 
 ## Verwijzingen
 
-* **TNO WuppieFuzz**: Dit project maakt gebruik van of is geïnspireerd door de methodologie en tutorials van WuppieFuzz, ontwikkeld door TNO. Raadpleeg de officiële TNO-documentatie voor verdere achtergrondinformatie over deze fuzzing-architectuur.
+* **TNO WuppieFuzz**: Dit project maakt gebruik en is geïnspireerd door de methodologie en tutorials van WuppieFuzz, ontwikkeld door TNO. Raadpleeg de officiële TNO-documentatie voor verdere achtergrondinformatie over deze fuzzing-architectuur.
 
 **Voor het geval als u zelf WuppieFuzz wilt gebruiken om eigen data te creeëren wordt het aangeraden om naar https://github.com/TNO-S3/WuppieFuzz en vervolgens naar de tutorial map te gaan om WuppieFuzz in te stellen.**
