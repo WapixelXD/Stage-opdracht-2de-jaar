@@ -123,3 +123,6 @@ model.load_model('fuzzing-project/scripts/best_api_xgboost_model.json')
 * **TNO WuppieFuzz**: Dit project maakt gebruik en is geïnspireerd door de methodologie en tutorials van WuppieFuzz, ontwikkeld door TNO. Raadpleeg de officiële TNO-documentatie voor verdere achtergrondinformatie over deze fuzzing-architectuur.
 
 **Voor het geval als u zelf WuppieFuzz wilt gebruiken om eigen data te creeëren wordt het aangeraden om naar https://github.com/TNO-S3/WuppieFuzz en vervolgens naar de tutorial map te gaan om WuppieFuzz in te stellen.**
+
+**Video Presentatie**: 
+De video presentatie kunt hier vinden: https://youtu.be/k4pucpC2kc4
